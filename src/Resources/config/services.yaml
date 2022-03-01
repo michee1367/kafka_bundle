@@ -1,0 +1,79 @@
+services:
+    Mink67\KafkaConnect\Db\Db:
+        class: Mink67\KafkaConnect\Db\Db
+        autowire: true      # Automatically injects dependencies in your services.
+
+    Mink67\KafkaConnect\Services\ManagerKeys:
+        class: Mink67\KafkaConnect\Services\ManagerKeys
+        autowire: true      # Automatically injects dependencies in your services.
+
+
+    Mink67\KafkaConnect\Services\Authority\GetCert:
+        class: Mink67\KafkaConnect\Services\Authority\GetCert
+        autowire: true      # Automatically injects dependencies in your services.
+
+    Mink67\KafkaConnect\Services\Authority\SignCert:
+        class: Mink67\KafkaConnect\Services\Authority\SignCert
+        autowire: true      # Automatically injects dependencies in your services.
+
+
+    Mink67\KafkaConnect\Services\FindAuthorityCert:
+        class: Mink67\KafkaConnect\Services\FindAuthorityCert
+        arguments:
+            $db: '@Mink67\KafkaConnect\Db\Db'
+            $crypt: '@Mink67\KafkaConnect\Contracts\Crypt'
+            $httpClient: '@Symfony\Contracts\HttpClient\HttpClientInterface'
+            $getAutorityCertUrl: '%env(KAFKA_CONNECT_GET_AUTHORITY_CERT_URl)%'
+
+    Mink67\KafkaConnect\Services\Cert\ValidateCert:
+        class: Mink67\KafkaConnect\Services\Cert\ValidateCert
+        autowire: true      # Automatically injects dependencies in your services.
+
+    Mink67\KafkaConnect\Services\Cert\ValidateCertBrute:
+        class: Mink67\KafkaConnect\Services\Cert\ValidateCertBrute
+        autowire: true      # Automatically injects dependencies in your services.
+
+    Mink67\KafkaConnect\Services\Cert\ValidatePayloadCert:
+        class: Mink67\KafkaConnect\Services\Cert\ValidatePayloadCert
+        autowire: true      # Automatically injects dependencies in your services.
+        
+    
+    Mink67\KafkaConnect\Services\Cert\GeneratePayloadCert:
+        class: Mink67\KafkaConnect\Services\Cert\GeneratePayloadCert
+        arguments:
+            $instType: '%env(INSTANCE_TYPE)%'
+            $managerKeys: '@Mink67\KafkaConnect\Services\ManagerKeys'
+
+    Mink67\KafkaConnect\Services\RequestValidationCert:
+        class: Mink67\KafkaConnect\Services\RequestValidationCert
+        arguments:
+            $db: '@Mink67\KafkaConnect\Db\Db'
+            $crypt: '@Mink67\KafkaConnect\Contracts\Crypt'
+            $httpClient: '@Symfony\Contracts\HttpClient\HttpClientInterface'
+            $signCertAutorityUrl: '%env(KAFKA_CONNECT_SIGN_CERT_AUTHORITY_URl)%'
+            $generatePayloadCert: '@Mink67\KafkaConnect\Services\Cert\GeneratePayloadCert'
+
+    Mink67\KafkaConnect\Services\FindTokenKeycloack:
+            $httpClient: '@Symfony\Contracts\HttpClient\HttpClientInterface'
+            $keycloackAppUserName: '%env(KEYCLOACK_APP_USER_NAME)%'
+            $keycloackAppPassword: '%env(KEYCLOACK_APP_PASSWORD)%'
+            $keycloackAppClientSecret: '%env(KEYCLOACK_APP_CLIENT_SECRET)%'
+            $keycloackAppClientId: '%env(KEYCLOACK_APP_CLIENT_ID)%'
+            $keycloackAuthUrl: '%env(KEYCLOACK_AUTH_URL)%'
+
+    Mink67\KafkaConnect\Annotations\Readers\ReaderConfig:
+        class: Mink67\KafkaConnect\Annotations\Readers\ReaderConfig
+        autowire: true      # Automatically injects dependencies in your services.
+
+  
+    Symfony\Component\DependencyInjection\ContainerInterface:
+        alias: 'service_container'
+
+    Mink67\KafkaConnect\Services\Receive:
+      class: Mink67\KafkaConnect\Services\Receive
+      autowire: true      # Automatically injects dependencies in your services.
+
+    Mink67\KafkaConnect\Services\Emit:
+      class: Mink67\KafkaConnect\Services\Emit  
+      autowire: true      # Automatically injects dependencies in your services.
+

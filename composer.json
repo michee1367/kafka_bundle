@@ -1,0 +1,24 @@
+{
+    "name": "mink67/kafka_connect_bundle",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Mink67\\KafkaConnect\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Michée NKUSU",
+            "email": "nkusumichee1367@gmail.com"
+        }
+    ],
+    "require": {
+        "doctrine/annotations": "^1.13",
+        "symfony/dependency-injection": "^6.0",
+        "symfony/config": "^6.0",
+        "firebase/php-jwt": "^6.0",
+        "symfony/uid": "^6.0",
+        "symfony/contracts": "^3.0",
+        "doctrine/orm": "^2.11"
+    }
+}
