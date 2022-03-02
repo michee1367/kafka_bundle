@@ -33,6 +33,10 @@ class RequestValidationCert {
      * @var GeneratePayloadCert
      */
     private $generatePayloadCert;
+    /**
+     * @var FindTokenKeycloack
+     */
+    private $findTokenKeycloack;
 
 
     /**
@@ -41,15 +45,17 @@ class RequestValidationCert {
     public function __construct(
         string $signCertAutorityUrl, 
         Db $db, 
-        HttpClientInterface $httpClient, 
+        HttpClientInterface $httpClient,
         Crypt $crypt,
-        GeneratePayloadCert $generatePayloadCert
+        GeneratePayloadCert $generatePayloadCert,
+        FindTokenKeycloack $findTokenKeycloack
     ) {
         $this->db = $db;
         $this->signCertAutorityUrl = $signCertAutorityUrl;
         $this->httpClient = $httpClient;
         $this->crypt = $crypt;
         $this->generatePayloadCert = $generatePayloadCert;
+        $this->findTokenKeycloack = $findTokenKeycloack;
 
         //CurlHttpClient
     }
@@ -81,6 +87,8 @@ class RequestValidationCert {
 
 
         //dd($this->httpClient);
+        $findTokenKeycloack = $this->findTokenKeycloack;
+        $tokenBearer = "Bearer ". $findTokenKeycloack();
 
         $response = $this->httpClient->request(
             'POST',
@@ -88,6 +96,7 @@ class RequestValidationCert {
             [
                 'headers' => [
                     'Content-Type' => 'application/json',
+                    'Authorization' => $tokenBearer,
                 ],
                 'json' => $body
             ]

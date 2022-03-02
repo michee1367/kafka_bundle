@@ -27,6 +27,10 @@ class FindAuthorityCert {
      * @var Crypt
      */
     private $crypt;
+    /**
+     * @var FindTokenKeycloack
+     */
+    private $findTokenKeycloack;
 
 
     /**
@@ -36,12 +40,14 @@ class FindAuthorityCert {
         string $getAutorityCertUrl, 
         Db $db, 
         HttpClientInterface $httpClient, 
-        Crypt $crypt
+        Crypt $crypt,
+        FindTokenKeycloack $findTokenKeycloack
     ) {
         $this->db = $db;
         $this->getAutorityCertUrl = $getAutorityCertUrl;
         $this->httpClient = $httpClient;
         $this->crypt = $crypt;
+        $this->findTokenKeycloack = $findTokenKeycloack;
     }
 
     /**
@@ -70,9 +76,18 @@ class FindAuthorityCert {
      */
     private function getCertInHttp(): string
     {
+        $findTokenKeycloack = $this->findTokenKeycloack;
+        $tokenBearer = "Bearer ". $findTokenKeycloack();
+        
         $response = $this->httpClient->request(
             'GET',
-            $this->getAutorityCertUrl
+            $this->getAutorityCertUrl,
+            [
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                    'Authorization' => $tokenBearer,
+                ]
+            ]
         );
 
         $content = $response->getContent();

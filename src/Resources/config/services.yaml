@@ -52,6 +52,8 @@ services:
             $httpClient: '@Symfony\Contracts\HttpClient\HttpClientInterface'
             $signCertAutorityUrl: '%env(KAFKA_CONNECT_SIGN_CERT_AUTHORITY_URl)%'
             $generatePayloadCert: '@Mink67\KafkaConnect\Services\Cert\GeneratePayloadCert'
+            $findTokenKeycloack: '@Mink67\KafkaConnect\Services\FindTokenKeycloack'
+            
 
     Mink67\KafkaConnect\Services\FindTokenKeycloack:
             $httpClient: '@Symfony\Contracts\HttpClient\HttpClientInterface'
@@ -76,14 +78,14 @@ services:
     Mink67\KafkaConnect\Services\Emit:
       class: Mink67\KafkaConnect\Services\Emit  
       autowire: true      # Automatically injects dependencies in your services.
-    
+
     Mink67\KafkaConnect\Contracts\ConcreteDb:
         class: Mink67\KafkaConnect\Db\ConcreteDb
         arguments:
             $em: '@Doctrine\ORM\EntityManagerInterface'
             $tableName: '%mink67.kafka_connect.db.table_name%'
 
+
     Mink67\KafkaConnect\Contracts\Crypt:
         class: Mink67\KafkaConnect\Services\Utils\Crypt
         autowire: true      # Automatically injects dependencies in your services.
-
