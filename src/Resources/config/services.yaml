@@ -76,4 +76,14 @@ services:
     Mink67\KafkaConnect\Services\Emit:
       class: Mink67\KafkaConnect\Services\Emit  
       autowire: true      # Automatically injects dependencies in your services.
+    
+    Mink67\KafkaConnect\Contracts\ConcreteDb:
+        class: Mink67\KafkaConnect\Db\ConcreteDb
+        arguments:
+            $em: '@Doctrine\ORM\EntityManagerInterface'
+            $tableName: '%mink67.kafka_connect.db.table_name%'
+
+    Mink67\KafkaConnect\Contracts\Crypt:
+        class: Mink67\KafkaConnect\Services\Utils\Crypt
+        autowire: true      # Automatically injects dependencies in your services.
 

@@ -46,6 +46,9 @@ class KafkaConnectExtension extends Extension {
         $container->setParameter("mink67.kafka_connect.consumer.group_id", $config["consumer"]["group_id"]);
         $container->setParameter("mink67.kafka_connect.consumer.enable_partition_eof", $config["consumer"]["enable_partition_eof"]);
         $container->setParameter("mink67.kafka_connect.consumer.auto_offset_reset", $config["consumer"]["auto_offset_reset"]);
+
+        $container->setParameter("mink67.kafka_connect.db.table_name", $config["db"]["table_name"]);
+
         
         //dd((string) u("For-oo_iir")->camel());
         

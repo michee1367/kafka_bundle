@@ -17,6 +17,7 @@
         "firebase/php-jwt": "^6.0",
         "doctrine/orm": "^2.11",
         "symfony/config": "5.4.*",
-        "symfony/dependency-injection": "5.4.*"
+        "symfony/dependency-injection": "5.4.*",
+        "mink67/encrypt_bundle": "^1.0"
     }
 }
