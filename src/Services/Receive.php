@@ -45,7 +45,7 @@ class Receive {
     public function __construct(EntityManagerInterface $em, ReaderConfig $reader, ContainerInterface $container) {
         $this->em = $em;
         $this->reader = $reader;
-        $this->container = $container; 
+        $this->container = $container;
     }
 
     /**
