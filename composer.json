@@ -19,6 +19,11 @@
         "symfony/config": "5.4.*",
         "symfony/dependency-injection": "5.4.*",
         "mink67/encrypt_bundle": "^1.0",
-        "symfony/http-client": "5.4.*"
+        "symfony/http-client": "5.4.*",
+        "symfony/serializer": "^6.0",
+        "api-platform/core": "^2.6",
+        "rakit/validation": "^1.4",
+        "enqueue/rdkafka": "^0.10.15",
+        "doctrine/doctrine-bundle": "^2.5"
     }
 }

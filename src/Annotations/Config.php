@@ -4,8 +4,17 @@ namespace Mink67\KafkaConnect\Annotations;
 /**
  */
 abstract class Config {
-
+    /**
+     * @var string
+     */
     protected $resourceName;
+    /**
+     * @var string
+     */
+    protected $topicName;
+    /**
+     * @var array
+     */
     protected $groups = [];
 
     public function __construct(array $options)
@@ -14,6 +23,9 @@ abstract class Config {
 
         if (empty($options['resourceName'])) {
             throw new \InvalidArgumentException("L'annotation doit avoir un attribut 'resourceName'");
+        }
+        if (empty($options['topicName'])) {
+            throw new \InvalidArgumentException("L'annotation doit avoir un attribut 'topicName'");
         }
 
         if (!is_string($options['resourceName'])) {
@@ -29,6 +41,7 @@ abstract class Config {
 
 
         $this->resourceName = $options['resourceName'];
+        $this->topicName = $options['topicName'];
         $groups = $options['groups'];
 
         foreach ($groups as $key => $group) {
@@ -40,12 +53,22 @@ abstract class Config {
     }
 
 
+    /**
+     * @return string
+     */
     public function getResourceName()
     {
         return $this->resourceName;
     }
     /**
-     * 
+     * @return string
+     */
+    public function getTopicName()
+    {
+        return $this->topicName;
+    }
+    /**
+     * @return array 
      */
     public function getGroups()
     {

@@ -4,6 +4,10 @@ namespace Mink67\KafkaConnect\Annotations\Readers;
 use Doctrine\Common\Annotations\Reader;
 use Mink67\KafkaConnect\Annotations\Copy;
 use Mink67\KafkaConnect\Annotations\Copyable;
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping\OneToOne;
+use Mink67\KafkaConnect\Annotations\ConfigORM;
 
 class ReaderConfig {
 
@@ -17,6 +21,127 @@ class ReaderConfig {
     {
         $this->reader = $reader;
     }
+
+    //ORM
+
+
+    /**
+     * @param string $className
+     * @return ConfigORM[]
+     */
+    private function getORMAnnotation(string $className): ?array
+    {
+        $reflection = new \ReflectionClass($className);
+        /**
+         * @var \ReflectionProperty[]
+         */
+        $properties = $reflection->getProperties();
+        
+        $configsORMAnn = [];
+        
+        foreach ($properties as $property) {
+                /**
+                 * @var ManyToOne
+                 */
+                $annotationManyToOne = $this->reader->getPropertyAnnotation($property, ManyToOne::class);
+                /**
+                 * @var OneToOne
+                 */
+                $annotationOneToOne = $this->reader->getPropertyAnnotation($property, OneToOne::class);
+
+                $configOrmAnn = new ConfigORM;
+
+                $configOrmAnn->setOneToOne($annotationOneToOne);
+                $configOrmAnn->setManyToOne($annotationManyToOne);
+
+                if ($configOrmAnn->isValid()) {
+                    $configOrmAnn->setFieldName($property->getName());
+                    array_push($configsORMAnn, $configOrmAnn);                    
+                }
+
+
+        }
+
+        return $configsORMAnn;
+    }
+    /**
+     * 
+     */
+
+    /**
+     * @param string $className
+     * @return ConfigORM[] 
+     */
+    private function getORMAttribute(string $className):?array
+    {
+        $reflection = new \ReflectionClass($className);
+
+        /**
+         * @var \ReflectionProperty[]
+         */
+        $properties = $reflection->getProperties();
+        
+        $configsORMAnn = [];
+
+        
+        foreach ($properties as $property) {
+                $atts = $property->getAttributes();
+                $configOrmAnn = new ConfigORM;
+
+                foreach ($atts as $key => $att) {
+                    //dump($property->getName());
+                    if ($att->getName() == OneToOne::class) {
+                        
+                        $args = $att->getArguments();
+
+                        $annotationOneToOne = new  OneToOne(
+                            isset($args['mappedBy']) ?$args['mappedBy']:null,
+                            isset($args['inversedBy'])?$args['inversedBy']:null,
+                            isset($args['targetEntity'])?$args['targetEntity']:null,
+                            isset($args['cascade'])?$args['cascade']:null,
+                            isset($args['fetch'])?$args['fetch']:'LAZY',
+                            isset($args['orphanRemoval'])?$args['orphanRemoval']:null
+                        );
+                        $configOrmAnn->setOneToOne($annotationOneToOne);
+                    }
+                    if ($att->getName() == ManyToOne::class) {
+                        $args = $att->getArguments();
+
+                        $annotationManyToOne = new ManyToOne(
+                            isset($args['targetEntity'])?$args['targetEntity']:null,
+                            isset($args['cascade'])?$args['cascade']:null,
+                            isset($args['fetch'])?$args['fetch']:'LAZY',
+                            isset($args['inversedBy'])?$args['inversedBy']:null
+                        );
+                        $configOrmAnn->setManyToOne($annotationManyToOne);
+                    }
+                }
+
+                if ($configOrmAnn->isValid()) {
+                    $configOrmAnn->setFieldName($property->getName());
+                    array_push($configsORMAnn, $configOrmAnn);                    
+                }
+
+        }
+
+        return $configsORMAnn;
+
+    }
+    /**
+     * @param string $className
+     * @return ConfigORM[] 
+     */
+    public function getConfigORM(string $className):?array
+    {
+        
+        $configs = [
+            ... $this->getORMAnnotation($className),
+            ... $this->getORMAttribute($className)
+        ];
+
+        return $configs;
+    }
+    //END ORM
     /**
      * @param string $className
      * @return Copy 
