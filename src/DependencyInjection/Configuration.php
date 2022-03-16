@@ -134,7 +134,6 @@ class Configuration implements ConfigurationInterface {
 
         return $treepBuilder;
 
-        
     }
 
 }

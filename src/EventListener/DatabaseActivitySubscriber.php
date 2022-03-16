@@ -5,7 +5,9 @@ use Doctrine\Bundle\DoctrineBundle\EventSubscriber\EventSubscriberInterface;
 use Doctrine\ORM\Events;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Mink67\KafkaConnect\Constant;
+use Mink67\KafkaConnect\Message\EmitMessage;
 use Mink67\KafkaConnect\Services\Emit;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class DatabaseActivitySubscriber implements EventSubscriberInterface
 {
@@ -13,12 +15,18 @@ class DatabaseActivitySubscriber implements EventSubscriberInterface
      * @var Emit
      */
     protected $emit;
+    /**
+     * @var MessageBusInterface
+     */
+    protected $bus;
 
     /**
      * 
      */
-    public function __construct(Emit $emit) {
+    public function __construct(Emit $emit, MessageBusInterface $bus) {
         $this->emit = $emit;
+        $this->bus = $bus;
+        
     }
 
     // this method can only return the event names; you cannot define a
@@ -57,10 +65,21 @@ class DatabaseActivitySubscriber implements EventSubscriberInterface
 
         // if this subscriber only applies to certain entity types,
         // add some code to check the entity type as early as possible
+        $entityClass = get_class($entity);
 
-        $emit = $this->emit;
+        if (method_exists($entityClass, "getId")) {
 
-        $emit($entity, Constant::CREATE_ACTION);
+            $this->bus->dispatch(
+                new EmitMessage(
+                    $entity->getId(),
+                    $entityClass,
+                    $action
+                )
+            );
+    
+            //$emit($entity, $action);            
+            
+        }
 
         // ... get the entity information and log it somehow
     }

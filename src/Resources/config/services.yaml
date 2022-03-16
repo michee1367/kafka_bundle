@@ -99,6 +99,15 @@ services:
         autowire: true      # Automatically injects dependencies in your services.
         tags: ['console.command']
 
+    Mink67\KafkaConnect\Commands\Init:
+        class: Mink67\KafkaConnect\Commands\Init
+        autowire: true      # Automatically injects dependencies in your services.
+        tags: ['console.command']
+
+    Mink67\KafkaConnect\Services\Init:
+        class: Mink67\KafkaConnect\Services\Init
+        autowire: true      # Automatically injects dependencies in your services.
+
     Mink67\KafkaConnect\EventListener\DatabaseActivitySubscriber:
         class: Mink67\KafkaConnect\EventListener\DatabaseActivitySubscriber
         autowire: true      # Automatically injects dependencies in your services.
@@ -111,3 +120,8 @@ services:
 
               # you can also restrict listeners to a specific Doctrine connection
               connection: 'default'
+
+    Mink67\KafkaConnect\MessageHandler\EmitHandler:
+        class: Mink67\KafkaConnect\MessageHandler\EmitHandler
+        autowire: true      # Automatically injects dependencies in your services.
+        tags: [messenger.message_handler]

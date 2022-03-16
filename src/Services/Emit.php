@@ -34,17 +34,15 @@ class Emit {
      * 
      */
     public function __construct(
-        ReaderConfig $reader, 
+        ReaderConfig $reader,
         ContainerInterface $container, 
         NormalizerInterface $normalizer,
         MessageDbValidator $validator
     ) {
-
         $this->reader = $reader;
         $this->container = $container;
         $this->normalizer = $normalizer;
         $this->validator = $validator;
-
     }
     /**
      * 
