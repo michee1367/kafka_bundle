@@ -24,6 +24,7 @@
             auto_offset_reset: "earliest"
           db:
             table_name: 'kafka_settings'
+          default_topic_name: 'sync_rn_db'
 
         mink67_encrypt:
             ciphering: 'AES-128-CTR'
@@ -40,5 +41,8 @@
 ```    
     $ composer require mink67/kafka_connect_bundle
 ```
-
+## Require symfony messenger
+```
+    $ composer require mink67/kafka_connect_bundle
+```
     
