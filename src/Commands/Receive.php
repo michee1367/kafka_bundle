@@ -280,9 +280,12 @@ class Receive extends Command {
                                 AbstractNormalizer::OBJECT_TO_POPULATE => $entity
                             ]
                     );
-        if ($entity->getId()) {
+
+        if ( is_null($entity->getId())) {
+
             $entity->setId($data["id"]);
             $this->em->persist($entity);
+            
         }
 
         $this->em->flush();

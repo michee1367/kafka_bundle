@@ -124,6 +124,11 @@ class Configuration implements ConfigurationInterface {
                             ->end()
                         ->end()
                     ->end()
+                    ->scalarNode("default_topic_name")
+                        ->isRequired()
+                        ->cannotBeEmpty()
+                    ->end()
+
                 ->end()
             ;
 

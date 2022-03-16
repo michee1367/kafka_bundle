@@ -83,7 +83,9 @@ class Receive {
     {
         $context = $this->getContext();
 
-        $fooQueue = $context->createTopic('sync_rn_db');
+        $topicName = $this->container->getParameter("mink67.kafka_connect.default_topic_name");
+
+        $fooQueue = $context->createTopic($topicName);
 
         $consumer = $context->createConsumer($fooQueue);
 
