@@ -327,7 +327,7 @@ class Receive extends Command {
                     "ORM config error"
                 ]);
     
-                return null;
+                continue;
     
             }
     
