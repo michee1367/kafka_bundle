@@ -1,6 +1,7 @@
 <?php
 namespace Mink67\KafkaConnect\EventListener;
 
+use DateTime;
 use Doctrine\Bundle\DoctrineBundle\EventSubscriber\EventSubscriberInterface;
 use Doctrine\ORM\Events;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
@@ -37,7 +38,54 @@ class DatabaseActivitySubscriber implements EventSubscriberInterface
             Events::postPersist,
             Events::postRemove,
             Events::postUpdate,
+            Events::prePersist,
+            Events::preRemove,
+            Events::preUpdate,
         ];
+    }
+
+    public function prePersist(LifecycleEventArgs $args): void
+    {
+        $entity = $args->getObject();
+        $entityClass = get_class($entity);
+
+        //dd($entityClass);
+        
+        if (
+            method_exists($entity, "setUpdatedAt") &&
+            method_exists($entity, "setCreatedAt") &&
+            method_exists($entity, "setSlug") 
+        ) {
+
+            $entity->setUpdatedAt(new DateTime());
+            $entity->setCreatedAt(new DateTime());
+            $entity->setSlug(uniqid("", true));
+        }
+        //$this->logActivity(Constant::CREATE_ACTION, $args);
+    }
+
+    public function preUpdate(LifecycleEventArgs $args): void
+    {
+        $entity = $args->getObject();
+        $entityClass = get_class($entity);
+        if (
+            method_exists($entity, "setUpdatedAt") 
+        ) {
+
+            $entity->setUpdatedAt(new DateTime());
+        }
+    }
+
+    public function preRemove(LifecycleEventArgs $args): void
+    {
+        $entity = $args->getObject();
+        $entityClass = get_class($entity);
+        if (
+            method_exists($entity, "setDeletedAt") 
+        ) {
+
+            $entity->setDeletedAt(new DateTime());
+        }
     }
 
     // callback methods must be called exactly like the events they listen to;
@@ -45,6 +93,16 @@ class DatabaseActivitySubscriber implements EventSubscriberInterface
     // to both the entity object of the event and the entity manager itself
     public function postPersist(LifecycleEventArgs $args): void
     {
+        $entity = $args->getObject();
+        $entityClass = get_class($entity);
+        if (
+            !method_exists($entityClass, "setUpdatedAt") ||
+            !method_exists($entityClass, "setCreatedAt") ||
+            !method_exists($entityClass, "setDeletedAt") ||
+            !method_exists($entityClass, "setSlug") 
+        ) {
+            
+        }
         $this->logActivity(Constant::CREATE_ACTION, $args);
     }
 
@@ -67,7 +125,11 @@ class DatabaseActivitySubscriber implements EventSubscriberInterface
         // add some code to check the entity type as early as possible
         $entityClass = get_class($entity);
 
+
+
         if (method_exists($entityClass, "getId")) {
+            //dd($entityClass);
+
 
             $this->bus->dispatch(
                 new EmitMessage(
