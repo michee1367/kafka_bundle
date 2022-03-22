@@ -44,8 +44,7 @@ class FindTokenKeycloack {
         string $keycloackAppClientSecret, 
         string $keycloackAppClientId, 
         string $keycloackAuthUrl, 
-        HttpClientInterface $httpClient, 
-        
+        HttpClientInterface $httpClient        
     ) {
         $this->keycloackAppUserName = $keycloackAppUserName;
         $this->keycloackAppPassword = $keycloackAppPassword;
