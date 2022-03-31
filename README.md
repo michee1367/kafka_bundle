@@ -25,6 +25,8 @@
           db:
             table_name: 'kafka_settings'
           default_topic_name: 'sync_rn_db'
+          prefix_channel: 'prefix'
+
 
         mink67_encrypt:
             ciphering: 'AES-128-CTR'
