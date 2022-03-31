@@ -128,6 +128,9 @@ class Configuration implements ConfigurationInterface {
                         ->isRequired()
                         ->cannotBeEmpty()
                     ->end()
+                    ->scalarNode("prefix_channel")
+                    ->end()
+                    //
 
                 ->end()
             ;

@@ -103,8 +103,9 @@ class Emit {
 
         $groupId = uniqid('', true);
         $host = $this->container->getParameter("mink67.kafka_connect.producer.bootstrap_servers");
+        $prefix = $this->container->getParameter("mink67.kafka_connect.prefix_channel");
         $autoOffsetReset = "beginning";
-        $topicName = $config->getTopicName();
+        $topicName = $prefix ."_". $config->getTopicName();
         
         $connectionFactory = new RdKafkaConnectionFactory([
             'global' => [

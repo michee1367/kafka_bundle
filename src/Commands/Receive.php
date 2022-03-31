@@ -216,6 +216,7 @@ class Receive extends Command {
 
         $data = $this->tranformData($entity, $data, $output);
 
+
         if (is_null($data)) {
             return null;
         }
@@ -280,13 +281,17 @@ class Receive extends Command {
                                 AbstractNormalizer::OBJECT_TO_POPULATE => $entity
                             ]
                     );
+        
 
-        if ( is_null($entity->getId())) {
+
+        if (!$this->em->contains($entity)) {
 
             $entity->setId($data["id"]);
             $this->em->persist($entity);
             
+            dump($this->em->contains($entity));
         }
+        
 
         $this->em->flush();
 
@@ -312,6 +317,10 @@ class Receive extends Command {
         $configsORM = $this->reader->getConfigORM(get_class($entity));
 
         if (empty($configsORM)) {
+            $output->writeln([
+                "Name many to many /",
+                
+            ]);
             return $data;
         }
 
@@ -320,20 +329,49 @@ class Receive extends Command {
         foreach ($configsORM as $key => $configORM) {
             $targetType = (!is_null($configORM) && $configORM->isValid()) ? $configORM->getTargetEntity() : null;
             $fieldName = $configORM->getFieldName();
+
+            if (!isset($data[$fieldName])) {
+                continue;
+            }
+
     
-            if (is_null($targetType) || !isset($data[$fieldName]["id"]) ) {
+            if (is_null($targetType) || (!isset($data[$fieldName]["id"]) && !is_array($data[$fieldName]) )) {
                 
                 $output->writeln([
                     "ORM config error"
                 ]);
     
-                continue;
+                return null;
     
             }
+
+            if (isset($data[$fieldName]["id"])) {
+                $iri = $this->iriConverter->getIriFromResourceClass($targetType) ."/".$data[$fieldName]["id"];
+                //dd($iri);
+                $newData[$fieldName] = $iri;                
+            } else if(is_array($data[$fieldName]) ) {
+                $iris = [];
+                foreach ($data[$fieldName] as $key => $entity) {
+
+
+                    if (!isset($entity["id"])) {
+                        
+                        $output->writeln([
+                            "ORM config error"
+                        ]);
+            
+                        return null;
+                    }
+
+                    array_push($iris, $this->iriConverter->getIriFromResourceClass($targetType) ."/".$entity["id"]);
+
+                }
+
+                $newData[$fieldName] = $iris;                
+                //dump($newData);
+                //return null;
+            }
     
-            $iri = $this->iriConverter->getIriFromResourceClass($targetType) ."/".$data[$fieldName]["id"];
-            //dd($iri);
-            $newData[$fieldName] = $iri;
             
         }
         //dd($newData);

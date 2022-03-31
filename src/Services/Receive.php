@@ -83,7 +83,10 @@ class Receive {
     {
         $context = $this->getContext();
 
-        $topicName = $this->container->getParameter("mink67.kafka_connect.default_topic_name");
+        $prefix = $this->container->getParameter("mink67.kafka_connect.prefix_channel");
+        $topicName = $prefix ."_" . $this->container->getParameter("mink67.kafka_connect.default_topic_name");
+
+        //dump($topicName);
 
         $fooQueue = $context->createTopic($topicName);
 

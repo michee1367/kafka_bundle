@@ -7,6 +7,7 @@ use Mink67\KafkaConnect\Annotations\Copyable;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\OneToOne;
+use Doctrine\ORM\Mapping\ManyToMany;
 use Mink67\KafkaConnect\Annotations\ConfigORM;
 
 class ReaderConfig {
@@ -48,11 +49,17 @@ class ReaderConfig {
                  * @var OneToOne
                  */
                 $annotationOneToOne = $this->reader->getPropertyAnnotation($property, OneToOne::class);
+                /**
+                 * @var ManyToMany
+                 */
+                $annotationManyToMany = $this->reader->getPropertyAnnotation($property, ManyToMany::class);
+
 
                 $configOrmAnn = new ConfigORM;
 
                 $configOrmAnn->setOneToOne($annotationOneToOne);
                 $configOrmAnn->setManyToOne($annotationManyToOne);
+                $configOrmAnn->setManyToMany($annotationManyToMany);
 
                 if ($configOrmAnn->isValid()) {
                     $configOrmAnn->setFieldName($property->getName());
@@ -100,7 +107,7 @@ class ReaderConfig {
                             isset($args['targetEntity'])?$args['targetEntity']:null,
                             isset($args['cascade'])?$args['cascade']:null,
                             isset($args['fetch'])?$args['fetch']:'LAZY',
-                            isset($args['orphanRemoval'])?$args['orphanRemoval']:null
+                            isset($args['orphanRemoval'])?$args['orphanRemoval']:false
                         );
                         $configOrmAnn->setOneToOne($annotationOneToOne);
                     }
@@ -114,6 +121,22 @@ class ReaderConfig {
                             isset($args['inversedBy'])?$args['inversedBy']:null
                         );
                         $configOrmAnn->setManyToOne($annotationManyToOne);
+                    }
+                    if ($att->getName() == ManyToMany::class) {
+                        //dump($att->getName() == ManyToMany::class);
+                        $args = $att->getArguments();
+
+                        $annotationManyToMany = new ManyToMany(
+                            isset($args['targetEntity'])?$args['targetEntity']:null,
+                            isset($args['mappedBy']) ?$args['mappedBy']:null,
+                            isset($args['inversedBy'])?$args['inversedBy']:null,
+                            isset($args['cascade'])?$args['cascade']:null,
+                            isset($args['fetch'])?$args['fetch']:'LAZY',
+                            isset($args['orphanRemoval'])?$args['orphanRemoval']:false,
+                            isset($args['indexBy'])?$args['indexBy']:null,
+
+                        );
+                        $configOrmAnn->setManyToMany($annotationManyToMany);
                     }
                 }
 

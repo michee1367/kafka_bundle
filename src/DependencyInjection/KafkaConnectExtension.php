@@ -49,14 +49,10 @@ class KafkaConnectExtension extends Extension {
         // Topic
         $container->setParameter("mink67.kafka_connect.default_topic_name", $config["default_topic_name"]);
 
-        
-
         $container->setParameter("mink67.kafka_connect.db.table_name", $config["db"]["table_name"]);
 
-        
-        //dd((string) u("For-oo_iir")->camel());
-        
-
+        $prefix = isset($config["prefix_channel"])? "default" : $config["prefix_channel"];
+        $container->setParameter("mink67.kafka_connect.prefix_channel", $prefix);
         //dd($this->data_convert);
         
 
