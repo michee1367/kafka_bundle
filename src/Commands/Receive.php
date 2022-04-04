@@ -12,6 +12,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Mink67\KafkaConnect\Annotations\Readers\ReaderConfig;
 use Mink67\KafkaConnect\Constant;
+use Mink67\KafkaConnect\Db\LockingDb;
+use Mink67\KafkaConnect\Services\EntityManager;
 use Mink67\KafkaConnect\Services\Utils\MessageDbValidator;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
@@ -47,17 +49,22 @@ class Receive extends Command {
      * @var IriConverterInterface
      */
     private $iriConverter;
+    /**
+     * @var EntityManager
+     */
+    private $emKafka;
 
     /**
      * 
      */
     public function __construct(
-        ServicesReceive $receive = null,
+        ServicesReceive $receive,
         EntityManagerInterface $em,
         MessageDbValidator $validator,
         ReaderConfig $reader,
         DenormalizerInterface $denormalizer,
-        IriConverterInterface $iriConverter
+        IriConverterInterface $iriConverter,
+        EntityManager $emKafka
     ) {
         $this->receive = $receive;
         $this->em = $em;
@@ -65,6 +72,7 @@ class Receive extends Command {
         $this->validator = $validator;
         $this->denormalizer = $denormalizer;
         $this->iriConverter = $iriConverter;
+        $this->emKafka = $emKafka;
 
         parent::__construct();
     }
@@ -95,6 +103,7 @@ class Receive extends Command {
         $i=0;
         do {
             $receive = $this->receive;
+            
             $messageBase64 = $receive();
             $messageStr = base64_decode($messageBase64);
 
@@ -146,6 +155,8 @@ class Receive extends Command {
 
         $classConcerns = [];
         $entity = null;
+        $persistEntity = null;
+        $lockEntity = null;
 
         foreach ($classes as $key => $className) {
 
@@ -167,14 +178,39 @@ class Receive extends Command {
 
             $entity = $this->getEntity($className, $messageArr, $output);
 
+            if (is_null($entity)) {
+                continue;
+            }
+
+            $lockEntity = $entity;
+
+            if ($this->isLock($lockEntity)) {
+
+                $output->writeln([
+                    get_class($entity). "/". $lockEntity->getId() . " is lock",
+                ]);
+                continue;
+            }
+
             $output->writeln([
                 get_class($entity),
             ]);
 
-            $entity = $this->denormalize($entity, $messageArr, $output);
+            $persistEntity = $this->denormalize($entity, $messageArr, $output);
         }
 
-        return $entity;
+        return $persistEntity;
+    }
+
+    /**
+     * 
+     */
+    public function isLock($entity)
+    {
+        $lock = $this->emKafka->getLock($entity);        
+
+        return !is_null($lock);
+
     }
 
     /**
@@ -289,7 +325,7 @@ class Receive extends Command {
             $entity->setId($data["id"]);
             $this->em->persist($entity);
             
-            dump($this->em->contains($entity));
+            //dump($this->em->contains($entity));
         }
         
 

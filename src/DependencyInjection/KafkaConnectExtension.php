@@ -52,7 +52,6 @@ class KafkaConnectExtension extends Extension {
         $container->setParameter("mink67.kafka_connect.db.table_name", $config["db"]["table_name"]);
 
         $prefix = isset($config["prefix_channel"])? $config["prefix_channel"] : "default";
-
         $container->setParameter("mink67.kafka_connect.prefix_channel", $prefix);
         //dd($this->data_convert);
         

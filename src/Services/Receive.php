@@ -2,6 +2,8 @@
 
 namespace Mink67\KafkaConnect\Services;
 
+use ApiPlatform\Core\Api\IriConverterInterface;
+use ApiPlatform\Core\Bridge\Symfony\Routing\IriConverter;
 use Doctrine\ORM\EntityManagerInterface;
 use Mink67\KafkaConnect\Annotations\Readers\ReaderConfig;
 use Mink67\KafkaConnect\Contracts\Crypt;
@@ -16,6 +18,7 @@ use Enqueue\RdKafka\RdKafkaConnectionFactory;
 use Enqueue\RdKafka\RdKafkaMessage;
 use Enqueue\RdKafka\RdKafkaContext;
 use Enqueue\RdKafka\RdKafkaConsumer;
+use Mink67\KafkaConnect\Db\LockingDb;
 
 /**
  * Perment de créer un un kafka connect
@@ -42,10 +45,18 @@ class Receive {
     /**
      * 
      */
-    public function __construct(EntityManagerInterface $em, ReaderConfig $reader, ContainerInterface $container) {
+    public function __construct(
+        EntityManagerInterface $em, 
+        ReaderConfig $reader, 
+        ContainerInterface $container,
+        LockingDb $lockingDb,
+        IriConverterInterface $iriConverter
+    ) {
         $this->em = $em;
         $this->reader = $reader;
         $this->container = $container;
+        $this->lockingDb = $lockingDb;
+        $this->iriConverter = $iriConverter;
     }
 
     /**

@@ -108,6 +108,18 @@ services:
         class: Mink67\KafkaConnect\Services\Init
         autowire: true      # Automatically injects dependencies in your services.
 
+#
+    Mink67\KafkaConnect\Services\EntityManager:
+        class: Mink67\KafkaConnect\Services\EntityManager
+        autowire: true      # Automatically injects dependencies in your services.
+
+
+    Mink67\KafkaConnect\Db\LockingDb:
+        class: Mink67\KafkaConnect\Db\LockingDb
+        arguments:
+            $em: '@Doctrine\ORM\EntityManagerInterface'
+            $prefixTableName: '%mink67.kafka_connect.db.table_name%'
+
     Mink67\KafkaConnect\EventListener\DatabaseActivitySubscriber:
         class: Mink67\KafkaConnect\EventListener\DatabaseActivitySubscriber
         autowire: true      # Automatically injects dependencies in your services.

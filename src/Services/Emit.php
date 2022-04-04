@@ -106,6 +106,7 @@ class Emit {
         $prefix = $this->container->getParameter("mink67.kafka_connect.prefix_channel");
         $autoOffsetReset = "beginning";
         $topicName = $prefix ."_". $config->getTopicName();
+
         
         $connectionFactory = new RdKafkaConnectionFactory([
             'global' => [
@@ -125,6 +126,8 @@ class Emit {
         $topic = $context->createTopic($topicName);
         
         $context->createProducer()->send($topic, $message);
+
+        //dd($topic);
 
     }
 }

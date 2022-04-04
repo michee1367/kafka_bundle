@@ -3,8 +3,12 @@
 namespace Mink67\KafkaConnect\Services;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Enqueue\RdKafka\RdKafkaConnectionFactory;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Mink67\KafkaConnect\Annotations\Readers\ReaderConfig;
 use Mink67\KafkaConnect\Constant;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Mink67\KafkaConnect\Services\Utils\MessageDbValidator;
 
 /**
  * Perment de créer un un kafka connect
@@ -49,7 +53,9 @@ class Init {
             $emit = $this->emit;
 
             foreach ($entities as $key => $entity) {
+
                 $emit($entity, Constant::UPDATE_ACTION);
+                dump("emit " . $className);
             }
             
         }
