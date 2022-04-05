@@ -62,13 +62,12 @@ class EntityManager {
             return null;
         }
 
-
         $exception = null;
         $newEntity = null;
 
         $this->unlock($entity);
 
-        for ($i=0; $i < 3; $i++) { 
+        for ($i=0; $i < 3; $i++) {
             
             try {
                 $this->lock($entity);

@@ -17,6 +17,8 @@ use Mink67\KafkaConnect\Services\EntityManager;
 use Mink67\KafkaConnect\Services\Utils\MessageDbValidator;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
+use ApiPlatform\Core\Bridge\Symfony\Routing\IriConverter;
+use ApiPlatform\Core\Exception\InvalidArgumentException;
 
 /**
  * Perment de créer un un kafka connect
@@ -66,6 +68,7 @@ class Receive extends Command {
         IriConverterInterface $iriConverter,
         EntityManager $emKafka
     ) {
+        dd(get_class($iriConverter));
         $this->receive = $receive;
         $this->em = $em;
         $this->reader = $reader;
@@ -101,6 +104,7 @@ class Receive extends Command {
         // the value returned by someMethod() can be an iterator (https://secure.php.net/iterator)
         // that generates and returns the messages with the 'yield' PHP keyword
         $i=0;
+        $j=0;
         do {
             $receive = $this->receive;
             
@@ -127,7 +131,16 @@ class Receive extends Command {
                     'Data valid',
                 ]);
 
-                $this->flushData($messageArr, $output);
+                $entity = $this->flushData($messageArr, $output);
+
+                if (is_null($entity)) {
+                    $j++;
+                }
+
+                $output->writeln([
+                    'Not register',
+                    $j,
+                ]);
 
             }
             
@@ -196,7 +209,16 @@ class Receive extends Command {
                 get_class($entity),
             ]);
 
-            $persistEntity = $this->denormalize($entity, $messageArr, $output);
+            try {
+                $persistEntity = $this->denormalize($entity, $messageArr, $output);
+                
+            } catch (InvalidArgumentException $th) {
+                
+                $output->writeln([
+                    $th->getMessage(),
+                ]);
+                return null;
+            }
         }
 
         return $persistEntity;
