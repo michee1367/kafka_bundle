@@ -136,6 +136,16 @@ class EntityManager {
 
         return $this->db->getLock($iri);        
     }
+    /**
+     * 
+     */
+    public function getLockByClassName($entity, string $className)
+    {
+        $iri = $this->iriConverter->getIriFromResourceClass($className)."/".$entity->getId();
+
+        return $this->db->getLock($iri);   
+
+    }
 
     
 

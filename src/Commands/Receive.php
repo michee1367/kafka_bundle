@@ -202,7 +202,7 @@ class Receive extends Command {
 
             $lockEntity = $entity;
 
-            if ($this->isLock($lockEntity)) {
+            if ($this->isLock($lockEntity, $className)) {
 
                 $output->writeln([
                     get_class($entity). "/". $lockEntity->getId() . " is lock",
@@ -239,9 +239,9 @@ class Receive extends Command {
     /**
      * 
      */
-    public function isLock($entity)
+    public function isLock($entity, string $className)
     {
-        $lock = $this->emKafka->getLock($entity);        
+        $lock = $this->emKafka->getLockByClassName($entity, $className);        
 
         return !is_null($lock);
 
