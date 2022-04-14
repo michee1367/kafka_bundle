@@ -69,7 +69,6 @@ class Receive extends Command {
         IriConverterInterface $iriConverter,
         EntityManager $emKafka
     ) {
-        dd(ClassUtils::getClass($iriConverter));
         $this->receive = $receive;
         $this->em = $em;
         $this->reader = $reader;
