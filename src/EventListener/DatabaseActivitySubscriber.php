@@ -9,6 +9,7 @@ use Mink67\KafkaConnect\Constant;
 use Mink67\KafkaConnect\Message\EmitMessage;
 use Mink67\KafkaConnect\Services\Emit;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Doctrine\Common\Util\ClassUtils;
 
 class DatabaseActivitySubscriber implements EventSubscriberInterface
 {
@@ -47,7 +48,7 @@ class DatabaseActivitySubscriber implements EventSubscriberInterface
     public function prePersist(LifecycleEventArgs $args): void
     {
         $entity = $args->getObject();
-        $entityClass = get_class($entity);
+        $entityClass = ClassUtils::getClass($entity);
 
         //dd($entityClass);
         
@@ -67,7 +68,7 @@ class DatabaseActivitySubscriber implements EventSubscriberInterface
     public function preUpdate(LifecycleEventArgs $args): void
     {
         $entity = $args->getObject();
-        $entityClass = get_class($entity);
+        $entityClass = ClassUtils::getClass($entity);
         if (
             method_exists($entity, "setUpdatedAt") 
         ) {
@@ -79,7 +80,7 @@ class DatabaseActivitySubscriber implements EventSubscriberInterface
     public function preRemove(LifecycleEventArgs $args): void
     {
         $entity = $args->getObject();
-        $entityClass = get_class($entity);
+        $entityClass = ClassUtils::getClass($entity);
         if (
             method_exists($entity, "setDeletedAt") 
         ) {
@@ -94,7 +95,7 @@ class DatabaseActivitySubscriber implements EventSubscriberInterface
     public function postPersist(LifecycleEventArgs $args): void
     {
         $entity = $args->getObject();
-        $entityClass = get_class($entity);
+        $entityClass = ClassUtils::getClass($entity);
         if (
             !method_exists($entityClass, "setUpdatedAt") ||
             !method_exists($entityClass, "setCreatedAt") ||
@@ -123,7 +124,7 @@ class DatabaseActivitySubscriber implements EventSubscriberInterface
 
         // if this subscriber only applies to certain entity types,
         // add some code to check the entity type as early as possible
-        $entityClass = get_class($entity);
+        $entityClass = ClassUtils::getClass($entity);
 
 
 

@@ -6,6 +6,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Mink67\KafkaConnect\Annotations\Readers\ReaderConfig;
 use Mink67\KafkaConnect\Constant;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Doctrine\Common\Util\ClassUtils;
 use Mink67\KafkaConnect\Services\Utils\MessageDbValidator;
 
 /**
@@ -60,14 +61,16 @@ class Emit {
             $action = Constant::CREATE_ACTION;
         }
         
-        $class = get_class($entity);
+        $class = ClassUtils::getClass($entity);
         $config = $this->reader->getConfigCopyable($class);
         //dd($class);
         if (is_null($config)) {
+            dump($class);
+            dump("config invalid");
             return;
         }
 
-        //dd($config);
+        //dump($config);
         $groups = $config->getGroups();
 
         $dataArr = $this->normalizer
@@ -93,6 +96,8 @@ class Emit {
         $resultValid = $this->validator->validate($messageArr);
         //dd($resultValid);
         if (!$resultValid) {
+            dump($class);
+            dump("config invalid");
             return null;
         }
 

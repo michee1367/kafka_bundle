@@ -12,6 +12,7 @@ use Mink67\KafkaConnect\Constant;
 use Mink67\KafkaConnect\Db\LockingDb;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Mink67\KafkaConnect\Services\Utils\MessageDbValidator;
+use Doctrine\Common\Util\ClassUtils;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
@@ -62,12 +63,13 @@ class EntityManager {
             return null;
         }
 
+
         $exception = null;
         $newEntity = null;
 
         $this->unlock($entity);
 
-        for ($i=0; $i < 3; $i++) {
+        for ($i=0; $i < 3; $i++) { 
             
             try {
                 $this->lock($entity);
@@ -96,7 +98,7 @@ class EntityManager {
      */
     private function getEntityPersistLocal($entity)
     {
-        $repository = $this->em->getRepository(get_class($entity));
+        $repository = $this->em->getRepository(ClassUtils::getClass($entity));
 
         $newEntity = $repository->find($entity->getId());
 
@@ -113,7 +115,7 @@ class EntityManager {
      */
     public function lock($entity)
     {
-        $iri = $this->iriConverter->getIriFromResourceClass(get_class($entity))."/".$entity->getId();
+        $iri = $this->iriConverter->getIriFromResourceClass(ClassUtils::getClass($entity))."/".$entity->getId();
 
         $this->db->setLock($iri);
     }
@@ -122,7 +124,7 @@ class EntityManager {
      */
     public function unlock($entity)
     {
-        $iri = $this->iriConverter->getIriFromResourceClass(get_class($entity))."/".$entity->getId();
+        $iri = $this->iriConverter->getIriFromResourceClass(ClassUtils::getClass($entity))."/".$entity->getId();
 
         $this->db->removeLock($iri);        
     }
@@ -132,19 +134,9 @@ class EntityManager {
      */
     public function getLock($entity)
     {
-        $iri = $this->iriConverter->getIriFromResourceClass(get_class($entity))."/".$entity->getId();
+        $iri = $this->iriConverter->getIriFromResourceClass(ClassUtils::getClass($entity))."/".$entity->getId();
 
         return $this->db->getLock($iri);        
-    }
-    /**
-     * 
-     */
-    public function getLockByClassName($entity, string $className)
-    {
-        $iri = $this->iriConverter->getIriFromResourceClass($className)."/".$entity->getId();
-
-        return $this->db->getLock($iri);   
-
     }
 
     

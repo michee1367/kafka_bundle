@@ -19,8 +19,7 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use ApiPlatform\Core\Bridge\Symfony\Routing\IriConverter;
 use ApiPlatform\Core\Exception\InvalidArgumentException;
-use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
-use Symfony\Component\Serializer\Exception\UnexpectedValueException;
+use Doctrine\Common\Util\ClassUtils;
 
 /**
  * Perment de créer un un kafka connect
@@ -70,7 +69,7 @@ class Receive extends Command {
         IriConverterInterface $iriConverter,
         EntityManager $emKafka
     ) {
-        //dd(get_class($iriConverter));
+        dd(ClassUtils::getClass($iriConverter));
         $this->receive = $receive;
         $this->em = $em;
         $this->reader = $reader;
@@ -80,12 +79,10 @@ class Receive extends Command {
         $this->emKafka = $emKafka;
 
         parent::__construct();
-        
     }
 
     protected function configure(): void
     {
-        
         $this
             // If you don't like using the $defaultDescription static property,
             // you can also define the short description using this method:
@@ -104,7 +101,6 @@ class Receive extends Command {
             '============',
             '',
         ]);
-
 
         // the value returned by someMethod() can be an iterator (https://secure.php.net/iterator)
         // that generates and returns the messages with the 'yield' PHP keyword
@@ -202,16 +198,16 @@ class Receive extends Command {
 
             $lockEntity = $entity;
 
-            if ($this->isLock($lockEntity, $className)) {
+            if ($this->isLock($lockEntity)) {
 
                 $output->writeln([
-                    get_class($entity). "/". $lockEntity->getId() . " is lock",
+                    ClassUtils::getClass($entity). "/". $lockEntity->getId() . " is lock",
                 ]);
                 continue;
             }
 
             $output->writeln([
-                get_class($entity),
+                ClassUtils::getClass($entity),
             ]);
 
             try {
@@ -223,14 +219,7 @@ class Receive extends Command {
                     $th->getMessage(),
                 ]);
                 return null;
-            } catch (UnexpectedValueException $th) {
-                
-                $output->writeln([
-                    $th->getMessage(),
-                ]);
-                return null;
             }
-            
         }
 
         return $persistEntity;
@@ -239,9 +228,9 @@ class Receive extends Command {
     /**
      * 
      */
-    public function isLock($entity, string $className)
+    public function isLock($entity)
     {
-        $lock = $this->emKafka->getLockByClassName($entity, $className);        
+        $lock = $this->emKafka->getLock($entity);        
 
         return !is_null($lock);
 
@@ -267,7 +256,7 @@ class Receive extends Command {
         }
 
         $output->writeln([
-            get_class($entity),
+            ClassUtils::getClass($entity),
         ]);
 
 
@@ -344,7 +333,7 @@ class Receive extends Command {
         $entity = $this->denormalizer
                         ->denormalize(
                             $data,
-                            get_class($entity),
+                            ClassUtils::getClass($entity),
                             null,
                             [
                                 'groups' => $groups,
@@ -381,10 +370,10 @@ class Receive extends Command {
     {
         $output->writeln([
             "class is Article",
-            get_class($entity) == ArticleCopy::class,
+            ClassUtils::getClass($entity) == ArticleCopy::class,
         ]);
 
-        $configsORM = $this->reader->getConfigORM(get_class($entity));
+        $configsORM = $this->reader->getConfigORM(ClassUtils::getClass($entity));
 
         if (empty($configsORM)) {
             $output->writeln([
