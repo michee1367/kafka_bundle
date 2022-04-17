@@ -8,6 +8,9 @@ use Mink67\KafkaConnect\Constant;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Doctrine\Common\Util\ClassUtils;
 use Mink67\KafkaConnect\Services\Utils\MessageDbValidator;
+use Enqueue\RdKafka\RdKafkaContext;
+use Enqueue\RdKafka\RdKafkaProducer;
+
 
 /**
  * Perment de créer un un kafka connect
@@ -30,6 +33,14 @@ class Emit {
      * @var MessageDbValidator
      */
     private $validator;
+    /**
+     * @var RdKafkaContext
+     */
+    private $context;
+    /**
+     * @var RdKafkaProducer
+     */
+    private $productor;
 
     /**
      * 
@@ -46,8 +57,53 @@ class Emit {
         $this->validator = $validator;
     }
     /**
-     * 
+     * @return RdKafkaContext
      */
+    public function getContext()
+    {
+        if (is_null($this->context)) {
+            
+
+            $groupId = uniqid('', true);
+            $host = $this->container->getParameter("mink67.kafka_connect.producer.bootstrap_servers");
+            $autoOffsetReset = "beginning";
+
+            
+            $connectionFactory = new RdKafkaConnectionFactory([
+                'global' => [
+                    'group.id' => $groupId,
+                    'metadata.broker.list' => $host,
+                    'enable.auto.commit' => 'false',
+                ],
+                'topic' => [
+                    'auto.offset.reset' => $autoOffsetReset,
+                ],
+            ]);
+            
+            $context = $connectionFactory->createContext();
+            $this->context = $context;
+        }
+
+        return $this->context;
+        
+    }
+    /**
+     * @return RdKafkaProducer
+     */
+    public function getProducer()
+    {
+        if (is_null($this->productor)) {
+
+            $context = $this->getContext();
+    
+            $productor = $context->createProducer();
+
+            $this->productor = $productor;
+            
+        }
+
+        return $this->productor;
+    }
 
 
     /**
@@ -106,11 +162,9 @@ class Emit {
 
         //dd($messageBase64);
 
-        $groupId = uniqid('', true);
+        /*$groupId = uniqid('', true);
         $host = $this->container->getParameter("mink67.kafka_connect.producer.bootstrap_servers");
-        $prefix = $this->container->getParameter("mink67.kafka_connect.prefix_channel");
         $autoOffsetReset = "beginning";
-        $topicName = $prefix ."_". $config->getTopicName();
 
         
         $connectionFactory = new RdKafkaConnectionFactory([
@@ -122,15 +176,19 @@ class Emit {
             'topic' => [
                 'auto.offset.reset' => $autoOffsetReset,
             ],
-        ]);
+        ]);*/
+
+        $prefix = $this->container->getParameter("mink67.kafka_connect.prefix_channel");
+        $topicName = $prefix ."_". $config->getTopicName();
         
-        $context = $connectionFactory->createContext();
+        //$context = $connectionFactory->createContext();
+        $context = $this->getContext();
         
         $message = $context->createMessage($messageBase64);
         
         $topic = $context->createTopic($topicName);
         
-        $context->createProducer()->send($topic, $message);
+        $this->getProducer()->send($topic, $message);
 
         //dd($topic);
 
