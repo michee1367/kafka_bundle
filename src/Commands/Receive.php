@@ -218,6 +218,11 @@ class Receive extends Command {
                     $th->getMessage(),
                 ]);
                 return null;
+            }catch (\Throwable $th) {
+                $output->writeln([
+                    $th->getMessage(),
+                ]);
+                return null;
             }
         }
 
@@ -275,9 +280,14 @@ class Receive extends Command {
         $data = $this->tranformData($entity, $data, $output);
 
 
+        if (ClassUtils::getClass($entity) == "App\Entity\OT") {
+            dump($data);
+            dump($entity);
+        }
         if (is_null($data)) {
             return null;
         }
+
 
         if (
             is_null($entity) ||
@@ -329,6 +339,7 @@ class Receive extends Command {
             json_encode($groups),
         ]);
 
+        
         $entity = $this->denormalizer
                         ->denormalize(
                             $data,
@@ -339,15 +350,15 @@ class Receive extends Command {
                                 AbstractNormalizer::OBJECT_TO_POPULATE => $entity
                             ]
                     );
+        $keys = array_keys($data);
         
-
-
+        
         if (!$this->em->contains($entity)) {
 
             $entity->setId($data["id"]);
             $this->em->persist($entity);
             
-            //dump($this->em->contains($entity));
+            dump($this->em->contains($entity));
         }
         
 
@@ -377,6 +388,8 @@ class Receive extends Command {
         if (empty($configsORM)) {
             $output->writeln([
                 "Name many to many /",
+                //serialize($data),
+                serialize($configsORM),
                 
             ]);
             return $data;

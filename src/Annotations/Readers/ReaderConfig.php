@@ -8,6 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\OneToOne;
 use Doctrine\ORM\Mapping\ManyToMany;
+use Doctrine\ORM\Mapping\OneToMany;
 use Mink67\KafkaConnect\Annotations\ConfigORM;
 
 class ReaderConfig {
@@ -41,6 +42,8 @@ class ReaderConfig {
         $configsORMAnn = [];
         
         foreach ($properties as $property) {
+                //dump($className);
+                //dump($property->getName());
                 /**
                  * @var ManyToOne
                  */
@@ -53,6 +56,11 @@ class ReaderConfig {
                  * @var ManyToMany
                  */
                 $annotationManyToMany = $this->reader->getPropertyAnnotation($property, ManyToMany::class);
+                /**
+                 * @var OneToMany
+                 */
+                $annotationOneToMany = $this->reader->getPropertyAnnotation($property, OneToMany::class);
+                
 
 
                 $configOrmAnn = new ConfigORM;
@@ -60,6 +68,8 @@ class ReaderConfig {
                 $configOrmAnn->setOneToOne($annotationOneToOne);
                 $configOrmAnn->setManyToOne($annotationManyToOne);
                 $configOrmAnn->setManyToMany($annotationManyToMany);
+                $configOrmAnn->setOneToMany($annotationOneToMany);
+
 
                 if ($configOrmAnn->isValid()) {
                     $configOrmAnn->setFieldName($property->getName());
@@ -137,6 +147,22 @@ class ReaderConfig {
 
                         );
                         $configOrmAnn->setManyToMany($annotationManyToMany);
+                    }
+                    if ($att->getName() == OneToMany::class) {
+                        //dump($att->getName() == OneToMany::class);
+                        $args = $att->getArguments();
+
+                        $annotationOneToMany = new OneToMany(
+                            isset($args['mappedBy'])?$args['mappedBy']:null,
+                            isset($args['targetEntity']) ?$args['targetEntity']:null,
+                            isset($args['cascade'])?$args['cascade']:null,
+                            isset($args['fetch'])?$args['fetch']:'LAZY',
+                            isset($args['orphanRemoval'])?$args['orphanRemoval']:false,
+                            isset($args['indexBy'])?$args['indexBy']:null,
+
+                        );
+                        
+                        $configOrmAnn->setOneToMany($annotationOneToMany);
                     }
                 }
 
